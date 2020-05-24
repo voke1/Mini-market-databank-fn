@@ -19,7 +19,7 @@ function App() {
         <Route exact path="/addmarket" component={AddMarket}></Route>
         <Route exact path="/marketlist" component={MarketList}></Route>
         <Route exact path="/marketdetails" component={MarketDetails}></Route>
-        <Route exact path="/Login" component={LoginPage}></Route>
+        <Route exact path="/login" component={LoginPage}></Route>
         <Route exact path="/register" component={RegisterPage}></Route>
         <Route exact path="/profile" component={Profile}></Route>
         <Route component={Error}></Route>
