@@ -1,24 +1,22 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import "./App.css";
+import { Route, Switch } from "react-router-dom";
+import FrontPage from './component/homePage';
+import AddMarket from "./component/addMarket";
+import MarketList from "./component/marketListing";
+import MarketDetails from "./component/market";
+
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <Switch>
+        <Route exact path="/" component={FrontPage}></Route>
+        <Route exact path="/addmarket" component={AddMarket}></Route>
+        <Route exact path="/marketlist" component={MarketList}></Route>
+        <Route exact path="/marketdetails" component={MarketDetails}></Route>
+        <Route component={Error}></Route>
+      </Switch>
     </div>
   );
 }
