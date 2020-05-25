@@ -28,7 +28,7 @@ const FrontPage = () => {
 
 
             {/* <!-- Static navbar --> */}
-            <Header/>
+            <Header />
 
             {/* <!--fullscreen image--> */}
             <div className="fullscreen-parallax bg-parallax parallax-overlay" data-jarallax='{"speed": 0.2}' style={{ backgroundImage: `url(${bg2})`, height: '75rem' }}>
@@ -279,11 +279,11 @@ const FrontPage = () => {
                         </div>
                     </div>
                     <div className="text-center mb30">
-                        <a href="#" className="btn btn-lg btn-rounded btn-primary">View All Listing</a>
+                        <Link to={'/marketlist'}> <button className="btn btn-lg btn-rounded btn-primary">View All Markets</button></Link>
                     </div>
                 </div>
             </div>
-            
+
             <div className="bg-faded pt80 pb40 mb70 ">
                 <div className="container">
                     <div className="row">
@@ -324,7 +324,7 @@ const FrontPage = () => {
                     </div>
                 </div>
             </div>
-            
+
             <div className="owl-carousel owl-theme owl-places mb40">
                 <div className="item">
                     <div className="card-overlay">
@@ -511,11 +511,11 @@ const FrontPage = () => {
                     </div>
                 </div>
             </div>
-            
-            <div className="container mb40">
+
+            <div className="container mb40 ">
                 <div className="row">
                     <div className="col-sm-6 col-sm-offset-3 text-center center-heading mb40">
-                        <h2>Latest from blog</h2>
+                        <h2>Popular Markets</h2>
                         <p>
                             It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.
                     </p>
@@ -561,7 +561,7 @@ const FrontPage = () => {
 
                 </div>
             </div>
-           <Footer/>
+            <Footer />
         </body>
     )
 }

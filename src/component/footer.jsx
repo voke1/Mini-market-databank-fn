@@ -38,7 +38,7 @@ const Footer = () => {
                         </p>
                         <p>
                             <small>Mail Us:</small><br />
-                            <a href="#">support@finder.com</a>
+                            <a href="#">support@theagromall.com</a>
                         </p>
                     </div>
                     <div className="col-md-4 mb30">
@@ -47,19 +47,13 @@ const Footer = () => {
                             <div className="col-sm-6">
                                 <ul className="f-links list-unstyled">
                                     <li><a href="#">Restaurants</a></li>
-                                    <li><a href="#">News</a></li>
-                                    <li><a href="#">Deal & Coupons</a></li>
-                                    <li><a href="#">About</a></li>
-                                    <li><a href="#">Restaurants</a></li>
+                                    
                                 </ul>
                             </div>
                             <div className="col-sm-6">
                                 <ul className="f-links list-unstyled">
                                     <li><a href="#">Shop</a></li>
-                                    <li><a href="#">Cinemas</a></li>
-                                    <li><a href="#">Contact Us</a></li>
-                                    <li><a href="#">Privacy & policy</a></li>
-                                    <li><a href="#">T & C</a></li>
+                                   
                                 </ul>
                             </div>
                         </div>
