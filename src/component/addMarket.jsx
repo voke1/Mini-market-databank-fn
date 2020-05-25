@@ -7,6 +7,7 @@ import Header from './header';
 import Footer from './footer';
 import axios from "axios";
 import Map from './googleMaps';
+import { storage } from '../firebase/index';
 import Dropzone from './dropzone';
 import tv from 'material-ui/svg-icons/hardware/tv';
 
@@ -18,13 +19,13 @@ class AddMarket extends Component {
     constructor(props) {
         super(props);
         this.center = { lat: 18.5204, lng: 73.8567 };
-        this.userDetails =  JSON.parse(localStorage.getItem("userdetails"));
+        this.userDetails = JSON.parse(localStorage.getItem("userdetails"));
         this.state = {
-            name: "",
-            description: "",
-            category: "Fruits & Vegetables",
-            location: "",
-            image: "",
+            name: this.props.location.state ? this.props.location.state.name : "",
+            description: this.props.location.state ? this.props.location.state.description:"",
+            category: this.props.location.state ? this.props.location.state.category: "Fruits & Vegetables",
+            location: this.props.location.state ? this.props.location.state.location:"",
+            imageUrl: this.props.location.state?this.props.location.state.imageUrl:"",
             mapPosition: {
                 lat: this.center.lat,
                 lng: this.center.lng
@@ -34,13 +35,17 @@ class AddMarket extends Component {
                 lng: this.center.lng
             },
             address: "",
-            
+            fileUpload: '',
+            file: 'upload bot image',
+
         }
     }
     /**
      * Get the current address from the default map position and set those values in the state
      */
     componentDidMount() {
+        console.log('location props: ', this.props)
+
         Geocode.fromLatLng(this.state.mapPosition.lat, this.state.mapPosition.lng).then(
             response => {
                 const address = response.results[0].formatted_address;
@@ -60,7 +65,20 @@ class AddMarket extends Component {
 
     }
 
+
+    fileSelectedHandler = event => {
+        if (event.target.files[0]) {
+            const fileInput = event.target.files[0];
+            this.setState({
+                fileUpload: fileInput,
+                file: event.target.files[0].name
+            });
+        }
+        return null;
+    };
+
     createMarket = market => {
+        console.log('create market called')
         const headers = {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${this.userDetails.token}`
@@ -71,16 +89,13 @@ class AddMarket extends Component {
                 description: market.description,
                 category: market.category,
                 imageUrl: market.imageUrl,
-                location: {
-                    address: market.address,
-                    lat: this.state.markerPosition.lat,
-                    long: this.state.markerPosition.lng,
-                },
+                geolocation: market.geolocation,
             }, {
                 headers: headers
             })
             .then(res => {
                 console.log(res);
+                return res
             })
             .catch(err => {
                 return err.response;
@@ -88,14 +103,20 @@ class AddMarket extends Component {
     };
 
 
-    hangleSumbit = async e => {
-        e.preventDefault();
+    saveData = async url => {
+        console.log('imageUrll: ', url)
         const market = {
             name: this.state.name,
             description: this.state.description,
             category: this.state.category,
-            imageUrl: this.state.imageUrl
+            imageUrl: url,
+            geolocation: {
+                address: this.state.address,
+                lat: this.state.markerPosition.lat,
+                long: this.state.markerPosition.lng,
+            },
         };
+
         try {
             const response = await this.createMarket(market);
             if (response.data) {
@@ -103,10 +124,52 @@ class AddMarket extends Component {
                     redirect: "/",
                     userDetails: response.data
                 });
+                alert('market submitted successfully')
+
             }
 
         } catch (error) {
             console.log(error);
+        }
+    };
+
+
+    handleSubmit = async event => {
+        event.preventDefault();
+        const { fileUpload } = this.state;
+
+        if (!fileUpload) {
+            this.setState({ displayState: "visible" });
+        }
+
+        // this.fileUploadHandler();
+        if (fileUpload) {
+            const uploadTask = storage
+                .ref(`images/${fileUpload.name}`)
+                .put(fileUpload);
+            uploadTask.on(
+                "state_changed",
+                snapshot => {
+                    // progrss function ....
+                    // const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+                    // this.setState({progress});
+                },
+                error => {
+                    // error function ....
+                    console.log(error);
+                },
+                () => {
+                    // complete function ....
+                    storage
+                        .ref("images")
+                        .child(fileUpload.name)
+                        .getDownloadURL()
+                        .then(url => {
+                            this.saveData(url);
+                        });
+                }
+            );
+            this.setState({ showProgress: true });
         }
     };
 
@@ -153,7 +216,6 @@ class AddMarket extends Component {
 
 
     render() {
-        console.log('userdetails: ', this.userDetails.token )
         return (
             <body>
                 <Header />
@@ -175,10 +237,10 @@ class AddMarket extends Component {
                             <div className="mb40">
                                 <h2 className="left-title">Market</h2>
                                 <div className="form-group">
-                                    <input className="form-control" type="text" name='name' onChange={this.onChange} placeholder="Name"></input>
+                                    <input className="form-control" type="text" name='name' onChange={this.onChange} value={this.state.name} placeholder="Name"></input>
                                 </div>
                                 <div className="form-group">
-                                    <textarea className="form-control" name='description' onChange={this.onChange} placeholder="Market Description" rows="8"></textarea><div className="textarea-resize"></div>
+                                    <textarea className="form-control" value={this.state.description} name='description' onChange={this.onChange} placeholder="Market Description" rows="8"></textarea><div className="textarea-resize"></div>
                                 </div>
                             </div>
                             <div className="mb40">
@@ -215,11 +277,22 @@ class AddMarket extends Component {
                             <div className="mb40">
                                 <h2 className="left-title">Add Photos</h2>
                                 <form id="my-awesome-dropzone" action="add-listing.html" className="dropzone">
-                                    <Dropzone />
+                                    <div class="custom-file">
+                                        <input
+                                            type="file"
+                                            class="custom-file-input"
+                                            id="customFileLang"
+                                            lang="en"
+                                            onChange={this.fileSelectedHandler}
+                                        />
+                                        <label class="custom-file-label" for="customFileLang">
+                                            {this.state.file}
+                                        </label>
+                                    </div>
                                 </form>
                             </div>
                             <div className="text-right mb40">
-                                <button className="btn btn-lg btn-primary" style={{ backgroundColor: 'green' }} onClick={this.hangleSumbit}>Submit</button>
+                                <button className="btn btn-lg btn-primary" style={{ backgroundColor: 'green' }} onClick={this.handleSubmit}>Submit</button>
                             </div>
                         </div>
                     </div>

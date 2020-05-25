@@ -279,7 +279,7 @@ const FrontPage = () => {
                         </div>
                     </div>
                     <div className="text-center mb30">
-                        <Link to={'/marketlist'}> <button className="btn btn-lg btn-rounded btn-primary">View All Markets</button></Link>
+                        <Link to={'/marketlist'}> <button className="btn btn-lg btn-rounded btn-primary" style={{ backgroundColor: 'green', width: "30rem" }}>View All Markets</button></Link>
                     </div>
                 </div>
             </div>
