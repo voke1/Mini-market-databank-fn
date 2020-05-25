@@ -7,6 +7,7 @@ import Header from './header';
 import Footer from './footer';
 import axios from "axios";
 import Map from './googleMaps';
+import Dropzone from './dropzone';
 
 
 class AddMarket extends Component {
@@ -124,7 +125,9 @@ class AddMarket extends Component {
                             </div>
                             <div className="mb40">
                                 <h2 className="left-title">Add Photos</h2>
-                                <form id="my-awesome-dropzone" action="add-listing.html" className="dropzone"></form>
+                                <form id="my-awesome-dropzone" action="add-listing.html" className="dropzone">
+                                    <Dropzone/>
+                                </form>
                             </div>
                             <div className="text-right mb40">
                                 <button className="btn btn-lg btn-primary" style={{ backgroundColor: 'green' }} onClick={this.hangleSumbit}>Submit</button>
