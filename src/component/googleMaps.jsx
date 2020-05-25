@@ -2,15 +2,17 @@ import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 import { withGoogleMap, GoogleMap, withScriptjs, InfoWindow, Marker } from "react-google-maps";
 import Autocomplete from 'react-google-autocomplete';
-import Geocode from "react-geocode";
+// import Geocode from "react-geocode";
 import './css/style.css';
 import './css/bundle.css';
 import Header from './header';
 import Footer from './footer';
 import axios from "axios";
+import { HardwareTv } from 'material-ui/svg-icons';
+import tv from 'material-ui/svg-icons/hardware/tv';
 
-Geocode.setApiKey("AIzaSyB8VMR9FooFZN64_qR8pu0jY0NJ8j_sicE");
-Geocode.enableDebug();
+// Geocode.setApiKey("AIzaSyB8VMR9FooFZN64_qR8pu0jY0NJ8j_sicE");
+// Geocode.enableDebug();
 
 
 class Map extends Component {
@@ -18,40 +20,12 @@ class Map extends Component {
         console.log('props', props)
         super(props);
         this.state = {
-            name: "",
-            description: "",
-            category: "",
-            location: "",
-            image: "",
-            mapPosition: {
-                lat: this.props.center.lat,
-                lng: this.props.center.lng
-            },
-            markerPosition: {
-                lat: this.props.center.lat,
-                lng: this.props.center.lng
-            },
-            address: "",
+            mapAddress: this.props.address
+         
         }
     }
 
-    /**
-  * Get the current address from the default map position and set those values in the state
-  */
-    componentDidMount() {
-        Geocode.fromLatLng(this.state.mapPosition.lat, this.state.mapPosition.lng).then(
-            response => {
-                const address = response.results[0].formatted_address;
-                this.setState({
-                    address: (address) ? address : '',
-                })
-            },
-            error => {
-                console.error(error);
-            }
-        );
-    };
-
+   
 
     /**
   * Component should only update ( meaning re-render ), when the user selects the address, or drags the pin
@@ -62,11 +36,8 @@ class Map extends Component {
   */
     shouldComponentUpdate(nextProps, nextState) {
         if (
-            this.state.markerPosition.lat !== this.props.center.lat ||
-            this.state.address !== nextState.address ||
-            this.state.city !== nextState.city ||
-            this.state.area !== nextState.area ||
-            this.state.state !== nextState.state
+            this.props.markerPosition.lat !== this.props.center.lat ||
+            this.props.address !== nextState.address 
         ) {
             return true
         } else if (this.props.center.lat === nextProps.center.lat) {
@@ -79,47 +50,7 @@ class Map extends Component {
 
     }
 
-    onPlaceSelected = (place) => {
-        const address = place.formatted_address,
-            addressArray = place.address_components,
-            latValue = place.geometry.location.lat(),
-            lngValue = place.geometry.location.lng();
-        // Set these values in the state.
-        this.setState({
-            address: (address) ? address : '',
-            markerPosition: {
-                lat: latValue,
-                lng: lngValue
-            },
-            mapPosition: {
-                lat: latValue,
-                lng: lngValue
-            },
-        })
-    };
-
-
-    onMarkerDragEnd = (event) => {
-        console.log('event', event);
-        let newLat = event.latLng.lat(),
-            newLng = event.latLng.lng(),
-            addressArray = [];
-        Geocode.fromLatLng(newLat, newLng).then(
-            response => {
-                const address = response.results[0].formatted_address,
-                    addressArray = response.results[0].address_components;
-                this.setState({
-                    address: (address) ? address : ''
-
-                })
-            },
-            error => {
-                console.error(error);
-            }
-        );
-    };
-
-
+   
 
     render() {
         const AsyncMap = withScriptjs(
@@ -127,14 +58,14 @@ class Map extends Component {
                 props => (
                     <GoogleMap google={this.props.google}
                         defaultZoom={this.props.zoom}
-                        defaultCenter={{ lat: this.state.mapPosition.lat, lng: this.state.mapPosition.lng }}
+                        defaultCenter={{ lat: this.props.mapPosition.lat, lng: this.props.mapPosition.lng }}
                     >
                         <InfoWindow
                             onClose={this.onInfoWindowClose}
-                            position={{ lat: (this.state.markerPosition.lat + 0.0018), lng: this.state.markerPosition.lng }}
+                            position={{ lat: (this.props.markerPosition.lat + 0.0018), lng: this.props.markerPosition.lng }}
                         >
                             <div>
-                                <span style={{ padding: 0, margin: 0 }}>{this.state.address}</span>
+                                <span style={{ padding: 0, margin: 0 }}>{this.props.address}</span>
                             </div>
                         </InfoWindow>
                         {/* For Auto complete Search Box */}
@@ -146,15 +77,15 @@ class Map extends Component {
                                 marginTop: '2px',
                                 marginBottom: '100px'
                             }}
-                            onPlaceSelected={this.onPlaceSelected}
+                            onPlaceSelected={this.props.onPlaceSelected}
                             types={['(regions)']}
                         />
                         {/*Marker*/}
                         <Marker google={this.props.google}
                             name={'Dolores park'}
                             draggable={true}
-                            onDragEnd={this.onMarkerDragEnd}
-                            position={{ lat: this.state.markerPosition.lat, lng: this.state.markerPosition.lng }}
+                            onDragEnd={this.props.onMarkerDragEnd}
+                            position={{ lat: this.props.markerPosition.lat, lng: this.props.markerPosition.lng }}
                         />
                         <Marker />
                     </GoogleMap>
@@ -167,7 +98,7 @@ class Map extends Component {
                 <div>
                     <div className="form-group">
                         <label htmlFor="">Address</label>
-                        <input type="text" name="address" className="form-control" onChange={this.onChange} readOnly="readOnly" value={this.state.address} />
+                        <input type="text" name="address" className="form-control"  readOnly="readOnly" value={this.props.address} />
                     </div>
                 </div>
                 <AsyncMap

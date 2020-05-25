@@ -8,38 +8,79 @@ import Footer from './footer';
 import axios from "axios";
 import Map from './googleMaps';
 import Dropzone from './dropzone';
+import tv from 'material-ui/svg-icons/hardware/tv';
+
+Geocode.setApiKey("AIzaSyB8VMR9FooFZN64_qR8pu0jY0NJ8j_sicE");
+Geocode.enableDebug();
 
 
 class AddMarket extends Component {
     constructor(props) {
         super(props);
+        this.center = { lat: 18.5204, lng: 73.8567 };
+        this.userDetails =  JSON.parse(localStorage.getItem("userdetails"));
         this.state = {
             name: "",
             description: "",
-            category: "",
+            category: "Fruits & Vegetables",
             location: "",
             image: "",
-           
+            mapPosition: {
+                lat: this.center.lat,
+                lng: this.center.lng
+            },
+            markerPosition: {
+                lat: this.center.lat,
+                lng: this.center.lng
+            },
             address: "",
+            
         }
     }
+    /**
+     * Get the current address from the default map position and set those values in the state
+     */
+    componentDidMount() {
+        Geocode.fromLatLng(this.state.mapPosition.lat, this.state.mapPosition.lng).then(
+            response => {
+                const address = response.results[0].formatted_address;
+                this.setState({
+                    address: (address) ? address : '',
+                })
+            },
+            error => {
+                console.error(error);
+            }
+        );
+    };
 
 
     onChange = async (e) => {
         this.setState({ [e.target.name]: e.target.value });
-        this.setState({
-            isChanged: true,
-        });
+
     }
 
     createMarket = market => {
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.userDetails.token}`
+        }
         return axios
             .post(`https://agromall-market-databank.herokuapp.com/api/v1/market`, {
-                email: market.email,
-                password: market.password,
+                name: market.name,
+                description: market.description,
+                category: market.category,
+                imageUrl: market.imageUrl,
+                location: {
+                    address: market.address,
+                    lat: this.state.markerPosition.lat,
+                    long: this.state.markerPosition.lng,
+                },
+            }, {
+                headers: headers
             })
             .then(res => {
-                return res;
+                console.log(res);
             })
             .catch(err => {
                 return err.response;
@@ -53,8 +94,7 @@ class AddMarket extends Component {
             name: this.state.name,
             description: this.state.description,
             category: this.state.category,
-            location: this.state.location,
-            image: this.state.image
+            imageUrl: this.state.imageUrl
         };
         try {
             const response = await this.createMarket(market);
@@ -70,10 +110,52 @@ class AddMarket extends Component {
         }
     };
 
+
+    onPlaceSelected = (place) => {
+        const address = place.formatted_address,
+            addressArray = place.address_components,
+            latValue = place.geometry.location.lat(),
+            lngValue = place.geometry.location.lng();
+        // Set these values in the state.
+        this.setState({
+            address: (address) ? address : '',
+            markerPosition: {
+                lat: latValue,
+                lng: lngValue
+            },
+            mapPosition: {
+                lat: latValue,
+                lng: lngValue
+            },
+        })
+    };
+
+
+    onMarkerDragEnd = (event) => {
+        console.log('event', event);
+        let newLat = event.latLng.lat(),
+            newLng = event.latLng.lng(),
+            addressArray = [];
+        Geocode.fromLatLng(newLat, newLng).then(
+            response => {
+                const address = response.results[0].formatted_address,
+                    addressArray = response.results[0].address_components;
+                this.setState({
+                    address: (address) ? address : ''
+
+                })
+            },
+            error => {
+                console.error(error);
+            }
+        );
+    };
+
+
     render() {
+        console.log('userdetails: ', this.userDetails.token )
         return (
             <body>
-
                 <Header />
                 <div className="page-bread mb70">
                     <div className="container">
@@ -116,17 +198,24 @@ class AddMarket extends Component {
                                 <div className="mb15">
                                     <Map
                                         google={this.props.google}
-                                        center={{ lat: 18.5204, lng: 73.8567 }}
+                                        center={this.center}
                                         height='300px'
                                         zoom={15}
+                                        address={this.state.address}
+                                        markerPosition={this.state.markerPosition}
+                                        mapPosition={this.state.mapPosition}
+                                        Geocode={Geocode}
+                                        onChange={this.onChange}
+                                        onPlaceSelected={this.onPlaceSelected}
+                                        onMarkerDragEnd={this.onMarkerDragEnd}
                                     />
                                 </div>
-                                <br/>
+                                <br />
                             </div>
                             <div className="mb40">
                                 <h2 className="left-title">Add Photos</h2>
                                 <form id="my-awesome-dropzone" action="add-listing.html" className="dropzone">
-                                    <Dropzone/>
+                                    <Dropzone />
                                 </form>
                             </div>
                             <div className="text-right mb40">
