@@ -4,6 +4,7 @@ import './css/style.css';
 import './css/bundle.css';
 import Header from './header';
 import Footer from './footer';
+import PageLoader from './pageLoader';
 import bg2 from './agromall.mp4';
 import bg3 from './images/bg3.jpg'
 import logo from './images/agromall-logo1.png';
@@ -16,6 +17,7 @@ import img6 from './images/img6.jpg';
 import img7 from './images/img7.jpg';
 import img8 from './images/img8.jpg';
 import axios from "axios";
+import tv from 'material-ui/svg-icons/hardware/tv';
 
 
 
@@ -24,11 +26,13 @@ class MarketList extends Component {
 
     constructor(props) {
         super(props)
+        this.userDetails = JSON.parse(localStorage.getItem("userdetails"));
         this.state = {
             markets: [],
             name: this.props.location.state ? this.props.location.state.name : "",
             category: this.props.location.state ? this.props.location.state.category : "",
             location: this.props.location.state ? this.props.location.state.location : "",
+            loaded: false,
 
         }
     }
@@ -39,45 +43,68 @@ class MarketList extends Component {
         console.log('tvargetvarray: ', targetArray)
         if (filters.name && filters.category && filters.location) {
             return targetArray.filter((target) => {
-                return (filters.name.includes(target.name) && target.category === filters.category && filters.location.includes(target.location))
+                return (target.name.includes(filters.name) && target.category === filters.category && target.location.includes(filters.location))
 
             })
 
         }
         if (filters.name && filters.category) {
-            console.log('if is called here')
             const response = targetArray.filter((target) => {
                 console.log('targetname: ', target.name, 'filters.name', filters.name)
-                if (target.name && target.category) {
-
-                    return (target.name.includes(filters.name) && target.category.includes(filters.category))
-                }
+                return (target.name.includes(filters.name) && target.category === filters.category)
 
             })
-            return this.setState({ markets: response })
+            return this.setState({ markets: response, loaded: true })
         }
         else if (filters.name && filters.location) {
             console.log('if22222 is called here')
-            return targetArray.filter((target) => {
-                return (filters.name.includes(target.name) && target.category === filters.category)
+            const response = targetArray.filter((target) => {
+                return (target.name.includes(target.name) && target.category === filters.category)
 
             })
+            return this.setState({ markets: response, loaded: true })
+
         }
         else if (filters.location && filters.category) {
-            return targetArray.filter((target) => {
-                return (filters.name == target.name && target.category == filters.category)
+            const response = targetArray.filter((target) => {
+                return (target.name.includes(filters.name) && target.category === filters.category)
 
             })
+            return this.setState({ markets: response, loaded: true })
+
         }
         else if (filters.location || filters.category || filters.name) {
-            return targetArray.filter((target) => {
-                return (filters.name == target.name || filters.category.includes(target.category) || filters.location.includes(target.location))
+            const response = targetArray.filter((target) => {
+                return (target.name.includes(filters.name) || target.category === filters.category || target.location.includes(filters.location))
 
             })
+            return this.setState({ markets: response, loaded: true })
+
         } else {
-            return this.setState({ markets: targetArray })
+            return this.setState({ markets: targetArray, loaded: true })
         }
     };
+
+    handleDelete = (id) => {
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${this.userDetails.token}`
+        }
+        return axios
+            .delete(`https://agromall-market-databank.herokuapp.com/api/v1/market/${id}`, {
+                headers: headers
+            })
+            .then(res => {
+                       this.setState({
+                           markets: [
+                               ...this.state.markets.filter(market => market._id !== id)
+                           ]
+                       });
+            })
+            .catch(err => {
+                return err.response;
+            });
+    }
 
     componentDidMount = async () => {
 
@@ -100,7 +127,7 @@ class MarketList extends Component {
     }
 
     render() {
-        const { name, category, location} = this.state;
+        const { name, category, location } = this.state;
         return (
             <body>
                 {/* <!-- Preloader --> */}
@@ -150,7 +177,7 @@ class MarketList extends Component {
                                 </div>
                             </div>
                             <div className="col-md-3 col-sm-6">
-                                <input type="button" className="btn btn-primary btn-block" value="Search" onClick={()=> this.filterMarkets(this.state.markets, {name, category, location})}></input>
+                                <input type="button" className="btn btn-primary btn-block" style={{ backgroundColor: 'green' }} value="Search" onClick={() => this.filterMarkets(this.state.markets, { name, category, location })}></input>
                             </div>
                         </form>
                     </div>
@@ -161,46 +188,47 @@ class MarketList extends Component {
                             <div className="col-sm-6 col-sm-offset-3 text-center center-heading mb40">
                                 <h2>Markets found</h2>
                                 <p>
-                                    List most recent places are submitted by our users. It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.
+                                    List most recent places are submitted by our users. There are several markets in Lagos, but just a few of them are unique.
                         </p>
 
                             </div>
                         </div>
-                        <div className="row">
-                            <div className="col-sm-12">
-                                {console.log('filteredMarkets: ', this.state.markets)}
-                                {console.log('location: ', this.state.location)}
-                                {console.log('category: ', this.state.category)}
-                                {console.log('name: ', this.state.name)}
 
+                        {this.state.loaded ? (
+                            <div className="row">
+                                <div className="col-sm-12">
 
-                                {this.state.markets.map(market => (
-                                    <div className="row listing-row">
-                                        <div className="col-sm-5">
-                                            <a ><img src={market.imageUrl} alt="Market Image" className="img-responsive"></img></a>
-                                        </div>
-                                        <div className="col-sm-7">
-                                            <h4><Link to={{ pathname: "/marketdetails", state: { name: market.name, description: market.description, imageUrl: market.imageUrl, geolocation: market.geolocation, category: market.category } }}><a href>{market.name}</a></Link></h4>
-                                            <p>
-                                                It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.
-                                            distracted by the readable content of a page when looking at its layout.
+                                    {this.state.markets.map(market => (
+                                        <div className="row listing-row">
+                                            <div className="col-sm-5" >
+                                                <Link to={{ pathname: "/marketdetails", state: { name: market.name, description: market.description, imageUrl: market.imageUrl, geolocation: market.geolocation, category: market.category } }}><a ><img src={market.imageUrl} alt="Market Image" className="img-responsive" ></img></a></Link>
+                                            </div>
+                                            <div className="col-sm-7" >
+                                                <h4 ><Link to={{ pathname: "/marketdetails", state: { name: market.name, description: market.description, imageUrl: market.imageUrl, geolocation: market.geolocation, category: market.category } }}><a style={{ color: 'green' }}>{market.name}</a></Link></h4>
+                                                <p>
+                                                    It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.
+                                                distracted by the readable content of a page when looking at its layout.
                                  </p>
-                                            <p><strong>Category:</strong> <span><a href="#">{market.category}</a></span></p>
-                                            <p><strong>Location:</strong> <span>{market.location}</span></p>
-                                            <br />
-                                            <br />
-                                            <br />
-                                            <br />
+                                                <p><strong>Category:</strong> <span>{market.category}</span></p>
+                                                <p><strong>Location:</strong> <span>{market.geolocation.address}</span></p>
+                                                <br />
+                                                <br />
+                                                <br />
+                                                <br />
+                                                {this.userDetails ? (<div> <div className="col-md-3 col-sm-6" >
+                                                    <Link to={{ pathname: "/addmarket", state: { name: market.name, description: market.description, imageUrl: market.imageUrl, geolocation: market.geolocation, category: market.category } }}><input type="button" className="btn btn-primary btn-block" value="Update" style={{ magrinTop: '50px', backgroundColor: 'green' }}></input></Link>
+                                                </div>
+                                                    <div className="col-md-3 col-sm-6" >
+                                                        <input type="button" className="btn btn-primary btn-block" value="Delete" onClick={() => { this.handleDelete(market._id) }} style={{ magrinTop: '50px', backgroundColor: 'red' }}></input>
+                                                    </div></div>) : ""}
 
-                                            <div className="col-md-3 col-sm-6" >
-                                                <Link to={{ pathname: "/addmarket", state: { name: market.name, description: market.description, imageUrl: market.imageUrl, geolocation: market.geolocation, category: market.category } }}><input type="button" className="btn btn-primary btn-block" value="Update" style={{ magrinTop: '50px' }}></input></Link>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
-                                <hr />
+                                    ))}
+                                    <hr />
+                                </div>
                             </div>
-                        </div>
+                        ) : <PageLoader />}
                         <div className="text-center mb30">
                             <nav aria-label="Page navigation">
                                 <ul className="pagination">

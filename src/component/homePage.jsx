@@ -83,7 +83,7 @@ class FrontPage extends Component {
                                                     <div className="col-md-3 col-sm-6">
                                                         <div className="form-group">
                                                             <select className="form-control" title="Category" onChange={this.onChange} value={this.state.category} name='category'>
-                                                                <option></option>
+                                                                <option>Select category</option>
                                                                 <option>Fruits</option>
                                                                 <option>Cereals</option>
                                                                 <option>Dairy</option>

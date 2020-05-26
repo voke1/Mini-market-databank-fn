@@ -8,8 +8,8 @@ import Footer from './footer';
 import axios from "axios";
 import Map from './googleMaps';
 import { storage } from '../firebase/index';
-import Dropzone from './dropzone';
-import tv from 'material-ui/svg-icons/hardware/tv';
+import Loader from './loader';
+import Swal from 'sweetalert2';
 
 Geocode.setApiKey("AIzaSyB8VMR9FooFZN64_qR8pu0jY0NJ8j_sicE");
 Geocode.enableDebug();
@@ -18,14 +18,15 @@ Geocode.enableDebug();
 class AddMarket extends Component {
     constructor(props) {
         super(props);
+        this.disabled = true;
         this.center = { lat: 18.5204, lng: 73.8567 };
         this.userDetails = JSON.parse(localStorage.getItem("userdetails"));
         this.state = {
             name: this.props.location.state ? this.props.location.state.name : "",
-            description: this.props.location.state ? this.props.location.state.description:"",
-            category: this.props.location.state ? this.props.location.state.category: "Fruits & Vegetables",
-            location: this.props.location.state ? this.props.location.state.location:"",
-            imageUrl: this.props.location.state?this.props.location.state.imageUrl:"",
+            description: this.props.location.state ? this.props.location.state.description : "",
+            category: this.props.location.state ? this.props.location.state.category : "",
+            location: this.props.location.state ? this.props.location.state.location : "",
+            imageUrl: this.props.location.state ? this.props.location.state.imageUrl : "",
             mapPosition: {
                 lat: this.center.lat,
                 lng: this.center.lng
@@ -34,19 +35,33 @@ class AddMarket extends Component {
                 lat: this.center.lat,
                 lng: this.center.lng
             },
-            address: "",
+            address: this.props.location.state ? this.props.location.state.geolocation.address : "",
             fileUpload: '',
-            file: 'upload bot image',
+            file: '',
+            message: "",
+            showProgress: "",
+            disabled: true,
 
         }
     }
+
+
+    EnableSubmit = () => {
+        const { name, description, file, address, category } = this.state;
+        console.log("listed items: ", name, description, file, address, category)
+        if (name && description && file && address && category) {
+            this.disabled = false
+        }
+    }
+
+
     /**
      * Get the current address from the default map position and set those values in the state
      */
     componentDidMount() {
         console.log('location props: ', this.props)
 
-        Geocode.fromLatLng(this.state.mapPosition.lat, this.state.mapPosition.lng).then(
+        Geocode.fromLatLng(this.props.location.state ? this.props.location.state.geolocation.lat : this.state.mapPosition.lat, this.props.location.state ? this.props.location.state.geolocation.lng : this.state.mapPosition.lng).then(
             response => {
                 const address = response.results[0].formatted_address;
                 this.setState({
@@ -57,6 +72,7 @@ class AddMarket extends Component {
                 console.error(error);
             }
         );
+
     };
 
 
@@ -119,14 +135,31 @@ class AddMarket extends Component {
 
         try {
             const response = await this.createMarket(market);
-            if (response.data) {
+            if (response.status === 201) {
                 this.setState({
-                    redirect: "/",
-                    userDetails: response.data
+                    message: "Market details succesffully added",
+                    userDetails: response.data,
+                    showProgress: false
                 });
-                alert('market submitted successfully')
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Market is successfully saved',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
 
             }
+            else{
+                this.setState({
+                    message: "An error occurred.Please try again!",
+                    showProgress: false
+                });
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Something went wrong. Try again',
+                })            }
 
         } catch (error) {
             console.log(error);
@@ -136,6 +169,8 @@ class AddMarket extends Component {
 
     handleSubmit = async event => {
         event.preventDefault();
+        this.setState({ showProgress: true });
+
         const { fileUpload } = this.state;
 
         if (!fileUpload) {
@@ -169,7 +204,6 @@ class AddMarket extends Component {
                         });
                 }
             );
-            this.setState({ showProgress: true });
         }
     };
 
@@ -214,13 +248,25 @@ class AddMarket extends Component {
         );
     };
 
+ 
+
 
     render() {
+        this.EnableSubmit()
+        const message = (
+            <p
+                className={this.state.message ? "animated shake" : "msg"}
+                style={{ color: this.state.message === "Market details succesffully added"?"green":"red" }}
+            >
+                {this.state.message}
+            </p>)
+
         return (
             <body>
                 <Header />
                 <div className="page-bread mb70">
                     <div className="container">
+
                         <div className="row">
                             <div className="col-sm-6">
                                 <h3>Submit Market details</h3>
@@ -247,10 +293,12 @@ class AddMarket extends Component {
                                 <h2 className="left-title">Category</h2>
                                 <div class="form-group">
                                     <select name="category" class="form-control" onChange={this.onChange} value={this.state.category}>
-                                        <option>Fruits & Vegetables</option>
+                                        <option>Select market category</option>
+                                        <option>Fruits </option>
+                                        <option>Vegetables </option>
                                         <option>Cereals</option>
                                         <option>Poultry</option>
-                                        <option>Bakery</option>
+                                        <option>Fish</option>
                                         <option>Dairy</option>
                                     </select>
                                 </div>
@@ -292,7 +340,8 @@ class AddMarket extends Component {
                                 </form>
                             </div>
                             <div className="text-right mb40">
-                                <button className="btn btn-lg btn-primary" style={{ backgroundColor: 'green' }} onClick={this.handleSubmit}>Submit</button>
+                                <button className="btn btn-lg btn-primary" style={{ backgroundColor: 'green' }} disabled={this.disabled}
+                                    onClick={this.handleSubmit}>{this.state.showProgress ? <Loader /> : "Submit"}</button>
                             </div>
                         </div>
                     </div>
