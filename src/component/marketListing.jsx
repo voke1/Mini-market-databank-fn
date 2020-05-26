@@ -39,43 +39,57 @@ class MarketList extends Component {
 
 
     filterMarkets = (targetArray, filters) => {
-        console.log('filtver.name: ', filters.name, 'filtvers.category: ', filters.category, " filters.location: ", filters.location)
-        console.log('tvargetvarray: ', targetArray)
-        if (filters.name && filters.category && filters.location) {
-            return targetArray.filter((target) => {
-                return (target.name.includes(filters.name) && target.category === filters.category && target.location.includes(filters.location))
-
-            })
-
-        }
-        if (filters.name && filters.category) {
+        let name = filters.name?filters.name.toLowerCase():"";
+        let category = filters.category?filters.category.toLowerCase():""
+        let location = filters.location?filters.location.toLowerCase():""
+        
+        if (name && category && location) {
+            
             const response = targetArray.filter((target) => {
-                console.log('targetname: ', target.name, 'filters.name', filters.name)
-                return (target.name.includes(filters.name) && target.category === filters.category)
-
-            })
-            return this.setState({ markets: response, loaded: true })
-        }
-        else if (filters.name && filters.location) {
-            console.log('if22222 is called here')
-            const response = targetArray.filter((target) => {
-                return (target.name.includes(target.name) && target.category === filters.category)
+                const targetName = target.name.toLowerCase();
+                const targetCategory = target.category.toLowerCase();
+                const targetLocation = target.geolocation.address.toLowerCase();
+                return (targetName.includes(name) && targetCategory === category && targetLocation.includes(location))
 
             })
             return this.setState({ markets: response, loaded: true })
 
         }
-        else if (filters.location && filters.category) {
+        if (name && category) {
             const response = targetArray.filter((target) => {
-                return (target.name.includes(filters.name) && target.category === filters.category)
+                const targetName = target.name.toLowerCase();
+                const targetCategory = target.category.toLowerCase();
+                return (targetName.includes(name) && targetCategory === category)
+
+            })
+            return this.setState({ markets: response, loaded: true })
+        }
+        else if (name && location) {
+            const response = targetArray.filter((target) => {
+                const targetName = target.name.toLowerCase();
+                const targetLocation = target.geolocation.address.toLowerCase();
+                return (targetName.includes(name) && targetLocation.includes(location))
 
             })
             return this.setState({ markets: response, loaded: true })
 
         }
-        else if (filters.location || filters.category || filters.name) {
+        else if (location && category) {
             const response = targetArray.filter((target) => {
-                return (target.name.includes(filters.name) || target.category === filters.category || target.location.includes(filters.location))
+                const targetCategory = target.category.toLowerCase();
+                const targetLocation = target.geolocation.address.toLowerCase();
+                return (targetLocation.includes(location) && targetCategory === category)
+
+            })
+            return this.setState({ markets: response, loaded: true })
+
+        }
+        else if (location || category || name) {
+            const response = targetArray.filter((target) => {
+                const targetName = name?target.name.toLowerCase():"";
+                const targetCategory = category?target.category.toLowerCase():""
+                const targetLocation = location?target.geolocation.address.toLowerCase():""
+                return (targetName.includes(name) || targetCategory === category || targetLocation.includes(location))
 
             })
             return this.setState({ markets: response, loaded: true })
@@ -117,7 +131,6 @@ class MarketList extends Component {
         console.log("marketvssss: ", markets)
         const { name, category, location } = this.state;
         this.filterMarkets(markets, { name, category, location })
-        console.log('this.filtveredMakers: ', this.filteredMarkets)
 
     };
 
@@ -157,22 +170,22 @@ class MarketList extends Component {
                             </div>
                             <div className="col-md-3 col-sm-6">
                                 <div className="form-group">
-                                    <select className="form-control" title="Location" onChange={this.onChange} value={this.state.location} name='location'>
-                                        <option>Lagos</option>
-                                        <option>London</option>
-                                        <option>New York</option>
-                                        <option>Tokyo</option>
-                                    </select>
+                                    <input className="form-control" placeholder="Location" title="Location" onChange={this.onChange} value={this.state.location} name='location'>
+                                       
+                                    </input>
                                 </div>
                             </div>
                             <div className="col-md-3 col-sm-6">
                                 <div className="form-group">
                                     <select className="form-control" title="Category" onChange={this.onChange} value={this.state.category} name='category'>
-                                        <option>select category</option>
-                                        <option>Food & Vegetables</option>
-                                        <option>Jobs</option>
-                                        <option>Property</option>
-                                        <option>Automotive</option>
+                                        <option>Select category</option>
+                                        <option>Fruits</option>
+                                        <option>Cereals</option>
+                                        <option>Dairy</option>
+                                        <option>Vegetables</option>
+                                        <option>Poultry</option>
+                                        <option>Dairy</option>
+                                        <option>Fish</option>
                                     </select>
                                 </div>
                             </div>
