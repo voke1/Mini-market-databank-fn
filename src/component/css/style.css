@@ -228,8 +228,8 @@ label {
 .page-bread {
   padding-top: 90px;
   padding-bottom: 30px;
-  background: -webkit-linear-gradient(right, #4267b2, #a035b3);
-  background: linear-gradient(-90deg, #4267b2, #a035b3); }
+  background: -webkit-linear-gradient(right, green, #92CD00);
+  background: linear-gradient(-90deg, #92CD00,  green); }
   .page-bread h3 {
     color: #fff;
     margin: 0px;

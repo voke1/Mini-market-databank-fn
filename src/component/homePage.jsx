@@ -69,23 +69,21 @@ class FrontPage extends Component {
                                                 <div className='row'>
                                                     <div className="col-md-3 col-sm-6">
                                                         <div className="form-group">
-                                                            <input type="text" className="form-control" placeholder="Name..." onChange={this.onChange} value={this.state.name} name='name'></input>
+                                                            <input type="text" className="form-control" placeholder="Name" onChange={this.onChange} value={this.state.name} name='name'></input>
                                                         </div>
                                                     </div>
                                                     <div className="col-md-3 col-sm-6">
                                                         <div className="form-group">
-                                                            <select className="form-control" title="Location" onChange={this.onChange} value={this.state.location} name='location'>
-                                                                <option>Lagos</option>
-                                                                <option>Lekki</option>
-                                                                <option>Jakande</option>
-                                                                <option>Tokyo</option>
-                                                            </select>
+                                                            <input className="form-control" title="Location" placeholder="Location" onChange={this.onChange} value={this.state.location} name='location'>
+                                                              
+                                                            </input>
                                                         </div>
 
                                                     </div>
                                                     <div className="col-md-3 col-sm-6">
                                                         <div className="form-group">
                                                             <select className="form-control" title="Category" onChange={this.onChange} value={this.state.category} name='category'>
+                                                                <option></option>
                                                                 <option>Fruits</option>
                                                                 <option>Cereals</option>
                                                                 <option>Dairy</option>

@@ -63,7 +63,7 @@ const RegisterPage = () => {
                                         Accept Terms & Conditions
                                 </label>
                                 </div>
-                                <input type="submit" value="SignUp" className='btn btn-primary btn-lg btn-block'></input>
+                                <input type="submit" value="SignUp" className='btn btn-primary btn-lg btn-block' style={{backgroundColor: 'green'}}></input>
                             </form>
                         </div>
                     </div>

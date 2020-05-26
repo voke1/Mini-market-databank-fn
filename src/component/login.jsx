@@ -8,6 +8,7 @@ import logo from './images/agromall-logo1.png';
 import Header from './header';
 import Footer from './footer';
 import axios from "axios";
+import Loader from './loader';
 import img1 from './images/img1.jpg';
 import img2 from './images/img2.jpg';
 import img3 from './images/img3.jpg';
@@ -25,6 +26,8 @@ class LoginPage extends Component {
             email: '',
             password: '',
             userDetails: '',
+            showProgress: "",
+            message: "",
         }
     }
 
@@ -52,6 +55,8 @@ class LoginPage extends Component {
 
     onSubmit = async e => {
         e.preventDefault();
+        this.setState({ showProgress: true });
+
         const user = {
             email: this.state.email,
             password: this.state.password,
@@ -59,12 +64,24 @@ class LoginPage extends Component {
         };
         try {
             const response = await this.login(user);
-            if (response.data) {
+            if (response.data.email && response.data.password) {
                 this.setState({
                     redirect: "/",
-                    userDetails: response.data
+                    userDetails: response.data,
+                    showProgress: false,
                 });
+                return
             }
+
+            if (!response.data.success) {
+                this.setState({
+                    message: "An error occurred!",
+                    userDetails: response.data,
+                    showProgress: false,
+                });
+                return
+            }
+
 
         } catch (error) {
             console.log(error);
@@ -76,6 +93,15 @@ class LoginPage extends Component {
     };
 
     render() {
+
+        const message = (
+            <p
+                className={this.state.message ? "animated shake" : "msg"}
+                style={{ color: "red" }}
+            >
+                {this.state.message}
+            </p>
+        );
         return (
             <body>
                 {/* <!-- Preloader --> */}
@@ -83,10 +109,10 @@ class LoginPage extends Component {
                 {/* <!-- Static navbar --> */}
                 {this.state.redirect ? this.renderRedirect(this.state.redirect) : ""}
                 <Header />
-                <div className="page-bread mb70">
-                    <div className="container">
-                        <div className="row">
-                            <div className="col-sm-6">
+                <div className="page-bread mb70" >
+                    <div className="container" >
+                        <div className="row" >
+                            <div className="col-sm-6" >
                                 <h3>Sign In</h3>
                             </div>
                             <div className="col-sm-6">
@@ -98,7 +124,9 @@ class LoginPage extends Component {
                 <div className="container mb70">
                     <div className="row">
                         <div className="col-sm-4 col-sm-offset-4">
+                            {this.state.showProgress ? "" : message}
                             <div className="border-card">
+
                                 <h3 className="font300 mb0 text-center">Login to your account</h3> <hr />
                                 <form onSubmit={this.onSubmit}>
                                     <div className='form-group-icon mb15'>
@@ -110,7 +138,7 @@ class LoginPage extends Component {
                                         <input type="password" className='form-control' name='password' value={this.state.password} onChange={this.onChange} placeholder="Password"></input>
                                     </div>
                                     <br />
-                                    <input type="submit" value="Login" className='btn btn-default btn-lg btn-block'></input>
+                                    <button type="submit" className='btn btn-default btn-lg btn-block' onClick={this.onSubmit} style={{ backgroundColor: 'green', color: 'white' }}>{this.state.showProgress ? <Loader /> : "Login"}</button>
                                 </form>
                                 <hr />
                             </div>
