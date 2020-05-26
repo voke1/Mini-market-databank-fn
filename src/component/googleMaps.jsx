@@ -11,8 +11,7 @@ import axios from "axios";
 import { HardwareTv } from 'material-ui/svg-icons';
 import tv from 'material-ui/svg-icons/hardware/tv';
 
-// Geocode.setApiKey("AIzaSyB8VMR9FooFZN64_qR8pu0jY0NJ8j_sicE");
-// Geocode.enableDebug();
+
 
 
 class Map extends Component {

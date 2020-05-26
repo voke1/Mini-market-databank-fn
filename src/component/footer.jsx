@@ -9,7 +9,7 @@ import './css/bundle.css';
 const Footer = () => {
 
     return (
-        < footer className="footer" >
+        < footer className="footer" style={{ backgroundColor: 'rgb(71,136,57)'}} >
             <div className="container">
                 <div className="row">
                     <div className="col-md-4 mb30">

@@ -25,22 +25,82 @@ class MarketList extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            markets: []
+            markets: [],
+            name: this.props.location.state ? this.props.location.state.name : "",
+            category: this.props.location.state ? this.props.location.state.category : "",
+            location: this.props.location.state ? this.props.location.state.location : "",
 
         }
     }
 
 
+    filterMarkets = (targetArray, filters) => {
+        console.log('filtver.name: ', filters.name, 'filtvers.category: ', filters.category, " filters.location: ", filters.location)
+        console.log('tvargetvarray: ', targetArray)
+        if (filters.name && filters.category && filters.location) {
+            return targetArray.filter((target) => {
+                return (filters.name.includes(target.name) && target.category === filters.category && filters.location.includes(target.location))
+
+            })
+
+        }
+        if (filters.name && filters.category) {
+            console.log('if is called here')
+            const response = targetArray.filter((target) => {
+                console.log('targetname: ', target.name, 'filters.name', filters.name)
+                if (target.name && target.category) {
+
+                    return (target.name.includes(filters.name) && target.category.includes(filters.category))
+                }
+
+            })
+            return this.setState({ markets: response })
+        }
+        else if (filters.name && filters.location) {
+            console.log('if22222 is called here')
+            return targetArray.filter((target) => {
+                return (filters.name.includes(target.name) && target.category === filters.category)
+
+            })
+        }
+        else if (filters.location && filters.category) {
+            return targetArray.filter((target) => {
+                return (filters.name == target.name && target.category == filters.category)
+
+            })
+        }
+        else if (filters.location || filters.category || filters.name) {
+            return targetArray.filter((target) => {
+                return (filters.name == target.name || filters.category.includes(target.category) || filters.location.includes(target.location))
+
+            })
+        } else {
+            return this.setState({ markets: targetArray })
+        }
+    };
+
     componentDidMount = async () => {
 
         const response = await axios.get(`https://agromall-market-databank.herokuapp.com/api/v1/market/all`, {})
-        
+
         await this.setState({
-             markets: response.data
-            })
+            markets: response.data,
+        })
+        const markets = [...this.state.markets]
+        console.log("marketvssss: ", markets)
+        const { name, category, location } = this.state;
+        this.filterMarkets(markets, { name, category, location })
+        console.log('this.filtveredMakers: ', this.filteredMarkets)
+
     };
 
+    onChange = async (e) => {
+        this.setState({ [e.target.name]: e.target.value });
+
+    }
+
     render() {
+        const { name, category, location} = this.state;
         return (
             <body>
                 {/* <!-- Preloader --> */}
@@ -65,12 +125,12 @@ class MarketList extends Component {
                         <form>
                             <div className="col-md-3 col-sm-6">
                                 <div className="form-group">
-                                    <input type="text" className="form-control" placeholder="Keywords..."></input>
+                                    <input type="text" className="form-control" placeholder="Name" onChange={this.onChange} value={this.state.name} name='name'></input>
                                 </div>
                             </div>
                             <div className="col-md-3 col-sm-6">
                                 <div className="form-group">
-                                    <select className="form-control" title="Location">
+                                    <select className="form-control" title="Location" onChange={this.onChange} value={this.state.location} name='location'>
                                         <option>Lagos</option>
                                         <option>London</option>
                                         <option>New York</option>
@@ -80,16 +140,17 @@ class MarketList extends Component {
                             </div>
                             <div className="col-md-3 col-sm-6">
                                 <div className="form-group">
-                                    <select className="form-control" title="Category">
+                                    <select className="form-control" title="Category" onChange={this.onChange} value={this.state.category} name='category'>
+                                        <option>select category</option>
                                         <option>Food & Vegetables</option>
-                                        <option>Jobs</option>w
-                                    <option>Property</option>
+                                        <option>Jobs</option>
+                                        <option>Property</option>
                                         <option>Automotive</option>
                                     </select>
                                 </div>
                             </div>
                             <div className="col-md-3 col-sm-6">
-                                <input type="button" className="btn btn-primary btn-block" value="Search"></input>
+                                <input type="button" className="btn btn-primary btn-block" value="Search" onClick={()=> this.filterMarkets(this.state.markets, {name, category, location})}></input>
                             </div>
                         </form>
                     </div>
@@ -107,24 +168,30 @@ class MarketList extends Component {
                         </div>
                         <div className="row">
                             <div className="col-sm-12">
+                                {console.log('filteredMarkets: ', this.state.markets)}
+                                {console.log('location: ', this.state.location)}
+                                {console.log('category: ', this.state.category)}
+                                {console.log('name: ', this.state.name)}
+
+
                                 {this.state.markets.map(market => (
                                     <div className="row listing-row">
                                         <div className="col-sm-5">
                                             <a ><img src={market.imageUrl} alt="Market Image" className="img-responsive"></img></a>
                                         </div>
                                         <div className="col-sm-7">
-                                            <h4><Link to={{ pathname: "/marketdetails", state: { name: market.name, description: market.description, imageUrl:market.imageUrl, geolocation: market.geolocation, category: market.category } }}><a href>Testy spanish coffee</a></Link></h4>
+                                            <h4><Link to={{ pathname: "/marketdetails", state: { name: market.name, description: market.description, imageUrl: market.imageUrl, geolocation: market.geolocation, category: market.category } }}><a href>{market.name}</a></Link></h4>
                                             <p>
                                                 It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout.
                                             distracted by the readable content of a page when looking at its layout.
                                  </p>
-                                            <p><strong>Category:</strong> <span><a href="#">Restaurants</a></span></p>
-                                            <p><strong>Location:</strong> <span>London, UK</span></p>
+                                            <p><strong>Category:</strong> <span><a href="#">{market.category}</a></span></p>
+                                            <p><strong>Location:</strong> <span>{market.location}</span></p>
                                             <br />
                                             <br />
                                             <br />
                                             <br />
-                                            
+
                                             <div className="col-md-3 col-sm-6" >
                                                 <Link to={{ pathname: "/addmarket", state: { name: market.name, description: market.description, imageUrl: market.imageUrl, geolocation: market.geolocation, category: market.category } }}><input type="button" className="btn btn-primary btn-block" value="Update" style={{ magrinTop: '50px' }}></input></Link>
                                             </div>

@@ -192,7 +192,8 @@ label {
   color: #4267b2 !important; }
 
 .label-primary {
-  background: #4267b2 !important; }
+  background:green
+   !important; }
 
 .label-warning {
   background: #ffb802 !important; }
@@ -288,7 +289,8 @@ div#preloader {
     height: 100%;
     left: 0;
     top: 0;
-    background:rgb(77,146,56) }
+    background:rgb(77,146,56);
+  opacity: 0.5 }
   .parallax-overlay .container {
     position: relative; }
 

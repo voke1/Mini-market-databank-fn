@@ -105,7 +105,7 @@ class MarketDetails extends Component {
                     
                     <h3 className="left-title mb25">Location</h3>
                     <iframe height="350" frameborder="0"  style={{border: 0, width: '100%'}}className="mb30"
-                            src="https://www.google.com/maps/embed/v1/place?q=place_id:ChIJWalJ2wO6j4AR4A9dNSj2ATI&key=AIzaSyAcC0a6iry-BDvy1LA4EFqlvKBGTdZELJA
+                            src="https://www.google.com/maps/embed/v1/place?q=Lekki+Lagos&key=AIzaSyAcC0a6iry-BDvy1LA4EFqlvKBGTdZELJA
                             " allowfullscreen></iframe>
                    
                     

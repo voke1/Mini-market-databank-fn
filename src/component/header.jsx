@@ -57,7 +57,7 @@ class Header extends Component {
                             <div id="navbar" className="navbar-collapse collapse">
                                 {this.userDetails ? (<ul className="nav navbar-nav navbar-right">
                                     <li >
-                                        <Link to={'/'}> <a href="#" className="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Home</a></Link>
+                                        <Link to={'/'}> <a  className="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Home</a></Link>
 
                                     </li>
                                     <li>
