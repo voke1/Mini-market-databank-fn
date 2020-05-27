@@ -15,9 +15,12 @@ AgroMall is at the intersection of digitised agricultural production support, di
 
  ## Features
 
-1. User can sign up.
-2. User can sign in.
-3. User can post Market.
+1. Admin can sign in.
+2. User can view market on google maps
+3. User can search market.
+4. Admin can delete market.
+5. Admin can edit market.
+6. User can post Market with google maps.
 
 
 
@@ -25,6 +28,7 @@ AgroMall is at the intersection of digitised agricultural production support, di
 ## Optional Features
 
  1. User can reset password
+ 2. User can sign up.
 
 
 
@@ -46,7 +50,7 @@ $ npm install
 
 ## Deployment
 
-- Agromall API is deployed to AWS. Use this link https://develop.d1gyytakfeg0jy.amplifyapp.com 
+- Agromall APP is deployed to AWS. Use this link https://develop.d1gyytakfeg0jy.amplifyapp.com 
 
 
 
